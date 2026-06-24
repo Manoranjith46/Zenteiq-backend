@@ -13,7 +13,7 @@ import path from 'path';
 /**
  * Handles a new WebSocket connection
  * Flow:
- *   1. Extract token and filename from query string
+ *   1. Extract token and filename from URL
  *   2. Validate token (JWT)
  *   3. Validate filename (path guard)
  *   4. Get watcher from multiplexer
@@ -23,20 +23,40 @@ import path from 'path';
  *   8. On disconnect, remove client from watcher
  *
  * @param ws - WebSocket client
- * @param query - Query string (e.g., "token=<jwt>&file=app.log&lines=50")
+ * @param url - Full URL (e.g., "/ws/logs/app.log?token=<jwt>&lines=50")
  * @param config - Config with LOGS_DIR and POLL_INTERVAL_MS
  */
-export async function handleWebSocketConnection(ws: WebSocket, query: string | undefined, config: Config): Promise<void> {
+export async function handleWebSocketConnection(ws: WebSocket, url: string | undefined, config: Config): Promise<void> {
   try {
+    // Extract path and query string from full URL
+    const fullUrl = url || '';
+    const queryIndex = fullUrl.indexOf('?');
+    const pathname = queryIndex !== -1 ? fullUrl.substring(0, queryIndex) : fullUrl;
+    const queryString = queryIndex !== -1 ? fullUrl.substring(queryIndex + 1) : '';
+
+    // Extract filename from path: /ws/logs/{filename}
+    const pathParts = pathname.split('/').filter((p) => p.length > 0);
+    if (pathParts.length < 3 || pathParts[0] !== 'ws' || pathParts[1] !== 'logs') {
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          code: 'FORBIDDEN',
+          message: 'Invalid WebSocket path',
+        }),
+      );
+      ws.close(1008, 'Invalid path');
+      return;
+    }
+    const filename = decodeURIComponent(pathParts[2]);
+
     // Extract and validate token
-    const payload = await authenticateWebSocket(query, config);
+    const payload = await authenticateWebSocket(queryString, config);
     console.log(`[INFO] WebSocket client authenticated: ${payload.email}`);
 
     // Parse query string
-    const params = new URLSearchParams(query);
-    const filename = params.get('file') || 'app.log';
-    const linesStr = params.get('lines') || '50';
-    const lines = parseInt(linesStr, 10) || 50;
+    const params = new URLSearchParams(queryString);
+    const linesStr = params.get('lines') || '10';
+    const lines = parseInt(linesStr, 10) || 10;
 
     // Validate and resolve filename (prevents path traversal)
     let absPath: string;
