@@ -54,13 +54,11 @@ const wss = new WebSocketServer({ server });
 wss.on('connection', (ws, req) => {
   console.log('[INFO] WebSocket client connected');
 
-  // Extract query string from upgrade request URL
+  // Pass full URL to handler so it can extract filename from path
   const url = req.url || '';
-  const queryIndex = url.indexOf('?');
-  const query = queryIndex !== -1 ? url.substring(queryIndex + 1) : undefined;
 
   // Handle connection asynchronously
-  handleWebSocketConnection(ws, query, config).catch((error) => {
+  handleWebSocketConnection(ws, url, config).catch((error) => {
     console.error(`[ERROR] WebSocket handler error: ${error instanceof Error ? error.message : 'Unknown error'}`);
   });
 });
