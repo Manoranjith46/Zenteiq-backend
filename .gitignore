@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+Agent_Prompt.md
+Backend Assignment.docx
+logs.md
+logs_TEMPLATE.md
+FIXES_TEMPLATE.MD
+FIXES.MD
+logic.md
+README.md
+PLAN.md
