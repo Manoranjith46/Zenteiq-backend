@@ -832,6 +832,7 @@ When `mv logs/app.log logs/app.log.1 && touch logs/app.log` is run (standard `lo
 ---
 
 ## 11. Troubleshooting
+These are the problems I encountered during development.
 
 **Q: Server exits immediately on startup with "JWT_SECRET too short"**  
 A: Your `.env` file either doesn't exist or `JWT_SECRET` is fewer than 32 characters. Run `cp .env.example .env` and set a long secret.
@@ -852,5 +853,3 @@ A: Check that `POLL_INTERVAL_MS` is set and not too high. Verify you are writing
 A: macOS APFS volumes do support inode-based rotation detection. Confirm the rotation actually creates a new file at the same path (`ls -i logs/app.log` before and after — the inode number should change).
 
 ---
-
-*Built for ZenteiQ.ai internship assignment — June 2026*
