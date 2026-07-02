@@ -49,7 +49,7 @@ The core tailing engine is hand-built from low-level `fs` primitives (file descr
     │  (authMiddleware.ts) │  │ (authRoutes.ts        │  │  (wsHandler.ts)     │
     │   JWT verification   │  │  logRoutes.ts)        │  │  Upgrade validation │
     └──────────┬──────────┘  └───────────┬──────────┘  └──────────┬──────────┘
-               │                         │                         │
+               │                         │                        │
                │              ┌──────────▼──────────┐             │
                └──────────────►      Path Guard      ◄────────────┘
                               │   (pathGuard.ts)     │
